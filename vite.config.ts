@@ -62,7 +62,7 @@ export default defineConfig({
   ],
   base: "/",
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         "mpegts.js",
         "crypto",
