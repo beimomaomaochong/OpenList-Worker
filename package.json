@@ -38,6 +38,21 @@
     "format": "prettier --ignore-path .gitignore -w \"src/backend/**/*.ts\""
   },
   "license": "AGPL-3.0",
+  "browser": {
+    "crypto": false,
+    "fs": false,
+    "zlib": false,
+    "util": false,
+    "stream": false,
+    "buffer": false,
+    "assert": false,
+    "path": false,
+    "os": false,
+    "net": false,
+    "tls": false,
+    "child_process": false,
+    "readline": false
+  },
   "devDependencies": {
     "@crowdin/cli": "^4.14.3",
     "@rolldown/binding-linux-x64-gnu": "1.2.2",
