@@ -38,7 +38,7 @@ export const FTPDriver = class { constructor() { throw new Error("[Edge/Serverle
 export const SFTPClient = class { constructor() { throw new Error("[Edge/Serverless] SFTP client requires full Node.js runtime"); } };
 export const parseAddress = () => ({ host: "127.0.0.1", port: 22 });
 export const Client = class { constructor() { throw new Error("[Edge/Serverless] ssh2 is not available in edge/serverless runtime"); } };
-export const createPool = () => { throw new Error("[Edge/Serverless] mysql2 is not available in edge/serverless runtime"); };
+export const createPool = () => { throw new Error("[Edge/Serverless] mysql2 is not available in edge/serverless runtime"); } };
 export default {};
 `,
           loader: "js",
@@ -67,18 +67,12 @@ async function build() {
   await esbuild.build({
     entryPoints: ["api/[...route].ts"],
     bundle: true,
-    platform: "neutral",
-    // 输出到 dist-server（dist 是 EdgeOne/Vercel 的静态发布目录，
-    // 后端 bundle 不应作为静态资源被发布出去）
+    platform: "node",
+    target: "node22",
     outfile: "dist-server/api/[...route].js",
     minify: true,
     format: "esm",
-    // neutral 平台默认不读 package.json 的 main/module 字段，必须显式配置，
-    // 否则依赖 hash-wasm 等无 exports 映射的包会报 Could not resolve
     mainFields: ["module", "main"],
-    // node:* 内置模块交由运行时解析（消费方为 Node 运行时：start 脚本 / Vercel /
-    // 云函数容器）。neutral 平台无法静态解析 node: 导入，而新增驱动中的
-    // node:crypto 均有运行时门控（isNode / try-catch），保持动态导入原样即可
     external: ["ssh2", "cpu-features", "iconv-lite", "mysql2", "node:*"],
     loader: { ".node": "empty" },
     plugins: [emptyNodeDriverPlugin],
@@ -93,7 +87,6 @@ async function build() {
     minify: true,
     format: "esm",
     external: ["ssh2", "cpu-features", "iconv-lite", "mysql2"],
-    // 内联 dist/index.html 作为 SPA 兜底壳（需在 vite build 之后运行）
     loader: { ".html": "text", ".node": "empty" },
     plugins: [emptyNodeDriverPlugin, normalizeHtmlEolPlugin],
   })
